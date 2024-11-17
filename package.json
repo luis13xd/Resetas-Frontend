@@ -1,12 +1,11 @@
 {
   "name": "front",
   "private": true,
-  "homepage": "/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "npx http-server ./dist",
+    "start": "npx http-server ./dist -p $PORT -a 0.0.0.0",
     "build": "vite build",
     "lint": "eslint .",
     "predeploy": "npm run build",
