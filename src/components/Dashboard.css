@@ -1,0 +1,88 @@
+.dashboard-container {
+  text-align: center;
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  width: 130px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.carousel {
+  margin-top: 20px;
+}
+
+.main-image {
+  margin: 0 auto;
+}
+
+.large-image {
+  width: 360px; /* Ajusta el tamaño de la imagen grande */
+  height: auto;
+  border-radius: 10px; /* Bordes redondeados */
+  margin-bottom: 10px; /* Espacio entre la imagen grande y las pequeñas */
+}
+
+.carousel-images {
+  display: flex;
+  justify-content: center; /* Centra las imágenes pequeñas */
+  margin-top: 10px; /* Espacio superior */
+}
+
+.small-image {
+  width: 50px; /* Ajusta el tamaño de las imágenes pequeñas */
+  height: auto;
+  margin: 0 5px; /* Espacio entre imágenes pequeñas */
+  cursor: pointer; /* Cambia el cursor al pasar el mouse */
+  border-radius: 5px; /* Bordes redondeados para imágenes pequeñas */
+}
+
+.small-image:hover {
+  opacity: 0.8; /* Efecto hover en imágenes pequeñas */
+}
+
+
+@media (max-width: 500px) {
+  .card {
+    width: 30%;
+  }
+
+  .large-image {
+    width: 320px;
+  }
+  
+  .small-image {
+    width: 45px; 
+  }
+}
+
+@media (max-width: 500px) {
+  .card {
+    width: 80px;
+    font-size: 12px;
+  }
+
+  .large-image {
+    width: 280px;
+  }
+  
+  .small-image {
+    width: 40px; 
+  }
+}

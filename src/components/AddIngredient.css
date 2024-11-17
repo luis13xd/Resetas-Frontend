@@ -1,0 +1,192 @@
+/* Estilos del Menú */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background-color: #000;
+  color: #fff;
+}
+
+.navbar img {
+  height: 40px;
+  margin-right: 15px;
+}
+
+.navbar ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar li {
+  margin: 0 15px;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navbar a:hover {
+  color: #ccc;
+}
+
+/* Contenedor de la sección de ingredientes */
+.ingredient-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+}
+
+/* Contenedor del formulario */
+.ingredient-section form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Permite que los elementos ocupen todo el ancho */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%; /* Asegura que el formulario ocupe todo el ancho disponible */
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para cada campo del formulario */
+.ingredient-section form label {
+  font-weight: bold;
+  margin-bottom: 5px; /* Añade espacio entre la etiqueta y el campo */
+}
+
+.ingredient-section input,
+.ingredient-section select {
+  width: 100%; /* Asegura que los inputs ocupen todo el ancho disponible */
+  padding: 8px;
+  margin-bottom: 15px; /* Añade espacio entre los campos */
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box; /* Incluye padding y border en el ancho total */
+}
+
+/* Botones de acción */
+.ingredient-section button {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%; /* Asegura que los botones ocupen todo el ancho */
+}
+
+.ingredient-section button[type="submit"] {
+  background-color: #000;
+  color: #fff;
+}
+
+.ingredient-section button[type="button"] {
+  background-color: #ccc;
+  color: #000;
+}
+
+
+/* Estilos de la tabla */
+.ingredient-section table {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table-responsive {
+  width: 100%;
+  max-width: 540px;
+}
+
+.ingredient-section thead {
+  background-color: #000;
+  color: #fff;
+}
+
+.ingredient-section th,
+.ingredient-section td {
+  padding: 10px;
+  text-align: center;
+}
+
+.ingredient-section tbody tr:nth-child(even) {
+  background-color: #e0e0e0;
+}
+
+.ingredient-section tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+/* Iconos de acción */
+.ingredient-section svg {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.ingredient-section svg:hover {
+  transform: scale(1.1);
+}
+
+
+
+/* Responsive Design para pantallas de menos de 600 px */
+@media (max-width: 600px) {
+  .ingredient-section {
+    margin: 2px;
+  }
+
+  .ingredient-section form {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    font-size: 14px;
+    width: 95%;
+  }
+
+  .ingredient-section label,
+  .ingredient-section input,
+  .ingredient-section select {
+    font-size: 15px;
+  }
+
+  .ingredient-section button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .ingredient-section table th,
+  .ingredient-section table td {
+    padding: 8px 2px;
+    font-size: 13px;
+  }
+
+  /* Estilo para el contenedor de la tabla */
+  .table-responsive {
+    width: 100%;
+    max-width: 500px;
+    overflow-x: auto;
+    /* Permitir el scroll horizontal */
+  }
+
+  /* Estilos de la tabla */
+  .ingredient-section table {
+    width: 100%;
+    /* Cambia el ancho a 100% para ajustarse al contenedor */
+    max-width: none;
+    /* Remueve cualquier restricción de ancho */
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+}
