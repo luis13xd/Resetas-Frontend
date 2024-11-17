@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-"start": "vite preview --port $PORT --host",
+    "start": "vite preview --port 5173 --host",
     "build": "vite build",
     "lint": "eslint .",
     "predeploy": "npm run build",
