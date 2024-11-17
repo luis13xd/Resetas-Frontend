@@ -14,7 +14,7 @@ const CreateDish = () => {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/ingredients");
+        const response = await fetch("https://resetas-backend-production.up.railway.app/api/ingredients");
         const data = await response.json();
         setIngredientsList(data);
       } catch (error) {
@@ -24,7 +24,7 @@ const CreateDish = () => {
 
     const fetchDishes = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/dishes");
+        const response = await fetch("https://resetas-backend-production.up.railway.app/api/dishes");
         const data = await response.json();
         setDishesList(data);
         setDishesCount(data.length); // Inicializa el conteo con los platos existentes
@@ -101,7 +101,7 @@ const CreateDish = () => {
       };
 
       try {
-        const response = await fetch("http://localhost:3000/api/dishes", {
+        const response = await fetch("https://resetas-backend-production.up.railway.app/api/dishes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -130,7 +130,7 @@ const CreateDish = () => {
     if (confirmDelete) {
       try {
         const dishToDelete = dishesList[index];
-        await fetch(`http://localhost:3000/api/dishes/${dishToDelete._id}`, {
+        await fetch(`https://resetas-backend-production.up.railway.app/api/dishes/${dishToDelete._id}`, {
           method: "DELETE",
         });
 

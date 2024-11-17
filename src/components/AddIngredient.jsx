@@ -19,7 +19,7 @@ const AddIngredient = () => {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/ingredients");
+        const response = await fetch("https://resetas-backend-production.up.railway.app/api/ingredients");
         if (!response.ok) {
           throw new Error("Error al obtener ingredientes");
         }
@@ -58,13 +58,13 @@ const AddIngredient = () => {
       };
   
       if (isEditing) {
-        await fetch(`http://localhost:3000/api/ingredients/${currentId}`, {
+        await fetch(`https://resetas-backend-production.up.railway.app/api/ingredients/${currentId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedIngredient),
         });
       } else {
-        await fetch("http://localhost:3000/api/ingredients", {
+        await fetch("https://resetas-backend-production.up.railway.app/api/ingredients", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedIngredient),
@@ -72,7 +72,7 @@ const AddIngredient = () => {
       }
   
       // Actualiza la lista de ingredientes
-      const response = await fetch("http://localhost:3000/api/ingredients");
+      const response = await fetch("https://resetas-backend-production.up.railway.app/api/ingredients");
       const data = await response.json();
       setIngredientsList(data);
       handleCancelEdit();
@@ -91,7 +91,7 @@ const AddIngredient = () => {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:3000/api/ingredients/${id}`, { method: "DELETE" });
+      await fetch(`https://resetas-backend-production.up.railway.app/api/ingredients/${id}`, { method: "DELETE" });
       setIngredientsList(ingredientsList.filter((ing) => ing._id !== id));
     } catch (error) {
       console.error("Error al eliminar ingrediente:", error);
