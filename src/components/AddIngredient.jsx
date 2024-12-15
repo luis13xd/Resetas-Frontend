@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "./AddIngredient.css";
 
@@ -13,13 +13,16 @@ const AddIngredient = () => {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
+  const formRef = useRef(null);
 
   const units = ["gramos", "mililitros", "piezas"];
 
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch("https://resetas-backend-production.up.railway.app/api/ingredients");
+        const response = await fetch(
+          "https://resetas-backend-production.up.railway.app/api/ingredients"
+        );
         if (!response.ok) {
           throw new Error("Error al obtener ingredientes");
         }
@@ -37,16 +40,17 @@ const AddIngredient = () => {
     const { name, value } = e.target;
     setIngredient((prevIngredient) => {
       const updatedIngredient = { ...prevIngredient, [name]: value };
-  
+
       // Calculamos el costo por unidad cuando se cambian el precio o la cantidad
       if (name === "price" || name === "quantity") {
-        updatedIngredient.unitCost = (updatedIngredient.price / updatedIngredient.quantity) || 0;
+        updatedIngredient.unitCost = parseFloat(
+          (updatedIngredient.price / updatedIngredient.quantity || 0).toFixed(2)
+        );
       }
-  
+
       return updatedIngredient;
     });
   };
-  
 
   const handleSaveIngredient = async (e) => {
     e.preventDefault();
@@ -56,23 +60,31 @@ const AddIngredient = () => {
         ...ingredient,
         unitCost: ingredient.price / ingredient.quantity || 0,
       };
-  
+
       if (isEditing) {
-        await fetch(`https://resetas-backend-production.up.railway.app/api/ingredients/${currentId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedIngredient),
-        });
+        await fetch(
+          `https://resetas-backend-production.up.railway.app/api/ingredients/${currentId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedIngredient),
+          }
+        );
       } else {
-        await fetch("https://resetas-backend-production.up.railway.app/api/ingredients", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedIngredient),
-        });
+        await fetch(
+          "https://resetas-backend-production.up.railway.app/api/ingredients",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedIngredient),
+          }
+        );
       }
-  
+
       // Actualiza la lista de ingredientes
-      const response = await fetch("https://resetas-backend-production.up.railway.app/api/ingredients");
+      const response = await fetch(
+        "https://resetas-backend-production.up.railway.app/api/ingredients"
+      );
       const data = await response.json();
       setIngredientsList(data);
       handleCancelEdit();
@@ -80,18 +92,24 @@ const AddIngredient = () => {
       console.error("Error al guardar ingrediente:", error);
     }
   };
-  
 
   const handleEdit = (id) => {
     const ingredientToEdit = ingredientsList.find((ing) => ing._id === id);
     setIngredient(ingredientToEdit);
     setIsEditing(true);
     setCurrentId(id);
+
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`https://resetas-backend-production.up.railway.app/api/ingredients/${id}`, { method: "DELETE" });
+      await fetch(
+        `https://resetas-backend-production.up.railway.app/api/ingredients/${id}`,
+        { method: "DELETE" }
+      );
       setIngredientsList(ingredientsList.filter((ing) => ing._id !== id));
     } catch (error) {
       console.error("Error al eliminar ingrediente:", error);
@@ -107,7 +125,7 @@ const AddIngredient = () => {
   return (
     <div className="ingredient-section">
       <h2>{isEditing ? "Editar Ingrediente" : "Agregar Ingrediente"}</h2>
-      <form onSubmit={handleSaveIngredient}>
+      <form ref={formRef} onSubmit={handleSaveIngredient}>
         <label>
           Nombre:
           <input
@@ -168,7 +186,7 @@ const AddIngredient = () => {
               <th>Precio</th>
               <th>Unidad</th>
               <th>Editar</th>
-              <th>Borrar</th>     
+              <th>Borrar</th>
             </tr>
           </thead>
           <tbody>
@@ -176,10 +194,29 @@ const AddIngredient = () => {
               <tr key={ing._id}>
                 <td>{ing.name}</td>
                 <td>{ing.unit}</td>
-                <td>{ing.quantity}</td>
-                
-                <td>${ing.price}</td>
-                <td>${ing.unitCost}</td>
+                <td>
+                  {new Intl.NumberFormat("es-ES", {
+                    useGrouping: true,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 1, // Ajusta si se requiere para decimales
+                  }).format(ing.quantity)}
+                </td>
+                <td>
+                  $
+                  {new Intl.NumberFormat("es-ES", {
+                    useGrouping: true,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 1, // 2 decimales para el precio
+                  }).format(ing.price)}
+                </td>
+                <td>
+                  $
+                  {new Intl.NumberFormat("es-ES", {
+                    useGrouping: true,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 1, // Ajusta según lo que necesites
+                  }).format(ing.unitCost)}
+                </td>
                 <td>
                   <FaEdit
                     onClick={() => handleEdit(ing._id)}

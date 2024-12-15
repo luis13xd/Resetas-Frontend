@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { FaTrash } from "react-icons/fa"; // Importar el ícono de papelera
+import { useState, useEffect, useRef } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import "./CreateDish.css";
 
 const CreateDish = () => {
@@ -8,13 +8,18 @@ const CreateDish = () => {
   const [selectedIngredient, setSelectedIngredient] = useState("");
   const [quantity, setQuantity] = useState("");
   const [dishesList, setDishesList] = useState([]);
-  const [dishesCount, setDishesCount] = useState(0); // Estado para contar los platos
+  const [dishesCount, setDishesCount] = useState(0);
+  const [editingDish, setEditingDish] = useState(null);
+  const formRef = useRef(null);
+
 
   // Obtener ingredientes del backend
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch("https://resetas-backend-production.up.railway.app/api/ingredients");
+        const response = await fetch(
+          "https://resetas-backend-production.up.railway.app/api/ingredients"
+        );
         const data = await response.json();
         setIngredientsList(data);
       } catch (error) {
@@ -24,7 +29,9 @@ const CreateDish = () => {
 
     const fetchDishes = async () => {
       try {
-        const response = await fetch("https://resetas-backend-production.up.railway.app/api/dishes");
+        const response = await fetch(
+          "https://resetas-backend-production.up.railway.app/api/dishes"
+        );
         const data = await response.json();
         setDishesList(data);
         setDishesCount(data.length); // Inicializa el conteo con los platos existentes
@@ -42,13 +49,13 @@ const CreateDish = () => {
       (ing) => ing.name === selectedIngredient
     );
     const parsedQuantity = parseFloat(quantity);
-  
+
     if (ingredient && !isNaN(parsedQuantity) && parsedQuantity > 0) {
       if (ingredient.quantity < parsedQuantity) {
         alert("No hay suficiente cantidad de este ingrediente disponible.");
         return;
       }
-  
+
       setIngredientsList((prevList) => {
         return prevList.map((ing) =>
           ing.name === ingredient.name
@@ -56,19 +63,29 @@ const CreateDish = () => {
             : ing
         );
       });
-  
+
       const updatedIngredients = [
         ...dish.ingredients,
-        { ...ingredient, quantity: parsedQuantity, unitPrice: ingredient.unitCost * parsedQuantity },
+        {
+          ...ingredient,
+          quantity: parsedQuantity,
+          unitPrice: ingredient.unitCost * parsedQuantity,
+        },
       ];
       setDish((prevDish) => {
         const totalCost = calculateDishTotal(updatedIngredients);
         const profit = calculateProfit(totalCost, prevDish.price);
         const margin = calculateMargin(totalCost, prevDish.price);
-  
-        return { ...prevDish, ingredients: updatedIngredients, totalCost, profit, margin };
+
+        return {
+          ...prevDish,
+          ingredients: updatedIngredients,
+          totalCost,
+          profit,
+          margin,
+        };
       });
-  
+
       setSelectedIngredient("");
       setQuantity("");
     } else {
@@ -77,7 +94,6 @@ const CreateDish = () => {
       );
     }
   };
-  
 
   const handleDeleteIngredient = (ingredientName) => {
     const updatedIngredients = dish.ingredients.filter(
@@ -85,7 +101,57 @@ const CreateDish = () => {
     );
     setDish((prevDish) => ({ ...prevDish, ingredients: updatedIngredients }));
   };
-  
+
+  // Función para manejar la edición
+  const handleEditDish = (dishToEdit) => {
+    setDish(dishToEdit); // Rellena el formulario con los datos del plato
+    setEditingDish(dishToEdit._id); // Guarda el ID del plato en edición
+  };
+
+  const handleUpdateDish = async () => {
+    if (dish.name && dish.ingredients.length > 0) {
+      const totalCost = calculateDishTotal(dish.ingredients);
+      const profit = calculateProfit(totalCost, dish.price);
+      const margin = calculateMargin(totalCost, dish.price);
+
+      const updatedDish = {
+        ...dish,
+        totalCost,
+        profit,
+        margin,
+      };
+
+      try {
+        const response = await fetch(
+          `https://resetas-backend-production.up.railway.app/api/dishes/${editingDish}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updatedDish),
+          }
+        );
+
+        if (response.ok) {
+          const updatedDishFromServer = await response.json();
+          setDishesList((prevList) =>
+            prevList.map((d) =>
+              d._id === editingDish ? updatedDishFromServer : d
+            )
+          );
+          setDish({ name: "", ingredients: [], price: 0 });
+          setEditingDish(null);
+        } else {
+          alert("Error al actualizar el plato.");
+        }
+      } catch (error) {
+        console.error("Error al actualizar el plato:", error);
+      }
+    } else {
+      alert("Completa los datos del plato antes de actualizar.");
+    }
+  };
 
   const handleSaveDish = async () => {
     if (dish.name && dish.ingredients.length > 0) {
@@ -101,13 +167,16 @@ const CreateDish = () => {
       };
 
       try {
-        const response = await fetch("https://resetas-backend-production.up.railway.app/api/dishes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dishWithPricing),
-        });
+        const response = await fetch(
+          "https://resetas-backend-production.up.railway.app/api/dishes",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dishWithPricing),
+          }
+        );
         const newDish = await response.json();
 
         if (response.ok) {
@@ -130,9 +199,12 @@ const CreateDish = () => {
     if (confirmDelete) {
       try {
         const dishToDelete = dishesList[index];
-        await fetch(`https://resetas-backend-production.up.railway.app/api/dishes/${dishToDelete._id}`, {
-          method: "DELETE",
-        });
+        await fetch(
+          `https://resetas-backend-production.up.railway.app/api/dishes/${dishToDelete._id}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         const updatedDishesList = dishesList.filter((_, i) => i !== index);
         setDishesList(updatedDishesList);
@@ -155,10 +227,14 @@ const CreateDish = () => {
     return totalCost > 0 ? ((price - totalCost) / totalCost) * 100 : 0;
   };
 
+  if (formRef.current) {
+    formRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+  
   return (
     <div>
-      <h3>Crear Plato</h3>
-      <div className="form-container">
+      <h3>{editingDish ? "Editar Plato" : "Crear Plato"}</h3>
+      <div ref={formRef} className="form-container">
         <input
           type="text"
           placeholder="Nombre del Plato"
@@ -202,9 +278,8 @@ const CreateDish = () => {
               {ing.name} - {ing.quantity} {ing.unit} (Precio: ${" "}
               {ing.unitPrice
                 ? ing.unitPrice.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                : "0"})
-
-              {/* Ícono de eliminar ingrediente */}
+                : "0"}
+              ){/* Ícono de eliminar ingrediente */}
               <FaTrash
                 onClick={() => handleDeleteIngredient(ing.name)}
                 style={{
@@ -217,7 +292,9 @@ const CreateDish = () => {
             </li>
           ))}
         </ul>
-        <button onClick={handleSaveDish}>Guardar Plato</button>
+        <button onClick={editingDish ? handleUpdateDish : handleSaveDish}>
+          {editingDish ? "Actualizar Plato" : "Guardar Plato"}
+        </button>
       </div>
       {dishesList.length > 0 && (
         <div style={{ marginTop: "20px" }}>
@@ -235,6 +312,18 @@ const CreateDish = () => {
                   borderRadius: "5px",
                 }}
               >
+                <FaEdit
+                  onClick={() => handleEditDish(dish)}
+                  style={{
+                    cursor: "pointer",
+                    color: "blue",
+                    marginRight: "10px",
+                    position: "absolute",
+                    top: "10px",
+                    right: "40px",
+                  }}
+                  title="Editar Plato"
+                />
                 <FaTrash
                   onClick={() => handleDeleteDish(index)}
                   style={{
@@ -245,7 +334,6 @@ const CreateDish = () => {
                     right: "10px",
                   }}
                   title="Eliminar Plato"
-                  size={22}
                 />
                 <h4>{dish.name}</h4>
                 {/* Tabla de Ingredientes */}
