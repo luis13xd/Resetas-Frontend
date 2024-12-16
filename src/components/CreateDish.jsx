@@ -4,14 +4,14 @@ import "./CreateDish.css";
 
 const CreateDish = () => {
   const [ingredientsList, setIngredientsList] = useState([]);
-  const [dish, setDish] = useState({ name: "", ingredients: [], price: 0 });
+  const [dish, setDish] = useState({ name: "", ingredients: [] });
   const [selectedIngredient, setSelectedIngredient] = useState("");
   const [quantity, setQuantity] = useState("");
   const [dishesList, setDishesList] = useState([]);
   const [dishesCount, setDishesCount] = useState(0);
   const [editingDish, setEditingDish] = useState(null);
   const formRef = useRef(null);
-
+  const [profitPercentage, setProfitPercentage] = useState("");
 
   // Obtener ingredientes del backend
   useEffect(() => {
@@ -105,22 +105,24 @@ const CreateDish = () => {
   // Función para manejar la edición
   const handleEditDish = (dishToEdit) => {
     setDish(dishToEdit); // Rellena el formulario con los datos del plato
+    setProfitPercentage(dishToEdit.margin?.toString() || "");
     setEditingDish(dishToEdit._id); // Guarda el ID del plato en edición
   };
 
   const handleUpdateDish = async () => {
     if (dish.name && dish.ingredients.length > 0) {
       const totalCost = calculateDishTotal(dish.ingredients);
-      const profit = calculateProfit(totalCost, dish.price);
-      const margin = calculateMargin(totalCost, dish.price);
-
+      const profit = (totalCost * parseFloat(profitPercentage)) / 100;
+      const price = totalCost + profit;
+  
       const updatedDish = {
         ...dish,
         totalCost,
         profit,
-        margin,
+        price,
+        margin: profitPercentage,
       };
-
+  
       try {
         const response = await fetch(
           `https://resetas-backend-production.up.railway.app/api/dishes/${editingDish}`,
@@ -132,7 +134,7 @@ const CreateDish = () => {
             body: JSON.stringify(updatedDish),
           }
         );
-
+  
         if (response.ok) {
           const updatedDishFromServer = await response.json();
           setDishesList((prevList) =>
@@ -140,7 +142,8 @@ const CreateDish = () => {
               d._id === editingDish ? updatedDishFromServer : d
             )
           );
-          setDish({ name: "", ingredients: [], price: 0 });
+          setDish({ name: "", ingredients: [] });
+          setProfitPercentage(""); // Limpia el porcentaje
           setEditingDish(null);
         } else {
           alert("Error al actualizar el plato.");
@@ -152,20 +155,24 @@ const CreateDish = () => {
       alert("Completa los datos del plato antes de actualizar.");
     }
   };
+  
 
   const handleSaveDish = async () => {
     if (dish.name && dish.ingredients.length > 0) {
       const totalCost = calculateDishTotal(dish.ingredients);
-      const profit = calculateProfit(totalCost, dish.price);
-      const margin = calculateMargin(totalCost, dish.price);
-
+  
+      // Calcular precio automáticamente basado en el porcentaje de ganancia
+      const profit = (totalCost * parseFloat(profitPercentage)) / 100;
+      const price = totalCost + profit;
+  
       const dishWithPricing = {
         ...dish,
         totalCost,
+        price,
         profit,
-        margin,
+        margin: profitPercentage,
       };
-
+  
       try {
         const response = await fetch(
           "https://resetas-backend-production.up.railway.app/api/dishes",
@@ -178,19 +185,24 @@ const CreateDish = () => {
           }
         );
         const newDish = await response.json();
-
+  
         if (response.ok) {
           setDishesList((prevList) => [...prevList, newDish]);
           setDishesCount((prevCount) => prevCount + 1);
-          setDish({ name: "", ingredients: [], price: 0 }); // Limpiar el plato actual
+          setDish({ name: "", ingredients: [] });
+
+          setProfitPercentage(""); // Limpiar el porcentaje de ganancia
         } else {
           alert("Error al guardar el plato.");
         }
       } catch (error) {
         console.error("Error al guardar el plato:", error);
       }
+    } else {
+      alert("Completa los datos del plato antes de guardar.");
     }
   };
+  
 
   const handleDeleteDish = async (index) => {
     const confirmDelete = window.confirm(
@@ -230,7 +242,7 @@ const CreateDish = () => {
   if (formRef.current) {
     formRef.current.scrollIntoView({ behavior: "smooth" });
   }
-  
+
   return (
     <div>
       <h3>{editingDish ? "Editar Plato" : "Crear Plato"}</h3>
@@ -244,14 +256,9 @@ const CreateDish = () => {
         <br />
         <input
           type="number"
-          placeholder="Precio de Venta"
-          value={dish.price || ""}
-          onChange={(e) =>
-            setDish({
-              ...dish,
-              price: e.target.value ? parseFloat(e.target.value) : "",
-            })
-          }
+          placeholder="Porcentaje de Ganancia (%)"
+          value={profitPercentage}
+          onChange={(e) => setProfitPercentage(e.target.value)}
         />
         <br />
         <select
